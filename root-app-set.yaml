@@ -16,10 +16,9 @@ spec:
     spec:
       project: default
       source:
-        repoURL: '{{chartRepo}}'
-        path: '{{chartPath}}'
-        chart: '{{chartName}}'
-        targetRevision: '{{chartVersion}}'
+        repoURL: '{{repoURL}}'
+        targetRevision: HEAD
+        path: '{{chartPath}}' 
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{targetNamespace}}'
@@ -27,3 +26,5 @@ spec:
         automated:
           prune: true
           selfHeal: true
+        syncOptions:
+          - ServerSideApply=true # Keeps your OKE cluster safe from the 256KB metadata bug

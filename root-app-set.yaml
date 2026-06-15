@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: fleet-helm-generator
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/jemmy8oy/oke-fleet.git
+        revision: HEAD
+        files:
+          - path: "config/*.json"
+  template:
+    metadata:
+      name: '{{appName}}'
+    spec:
+      project: default
+      source:
+        repoURL: '{{chartRepo}}'
+        path: '{{chartPath}}'
+        chart: '{{chartName}}'
+        targetRevision: '{{chartVersion}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{targetNamespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true

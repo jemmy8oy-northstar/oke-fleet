@@ -1,6 +1,6 @@
 {
   "appName": "holiday-planning",
-  "repoURL": "https://github.com/jemmy8oy/holiday-planning.git",
+  "repoURL": "https://github.com/jemmy8oy-northstar/holiday-planning.git",
   "chartPath": "helm",
   "targetNamespace": "balenthiran"
 }

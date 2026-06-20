@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/jemmy8oy/oke-fleet.git
+    repoURL: https://github.com/jemmy8oy-northstar/oke-fleet.git
     targetRevision: HEAD
     path: apps-root
   destination:

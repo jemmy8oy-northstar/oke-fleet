@@ -6,7 +6,7 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: https://github.com/jemmy8oy/oke-fleet.git
+        repoURL: https://github.com/jemmy8oy-northstar/oke-fleet.git
         revision: HEAD
         files:
           - path: "config/*.json"

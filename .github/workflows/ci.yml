@@ -1,0 +1,29 @@
+name: CI
+
+# Runs on every pull request, into any branch — so a feature -> dev merge is
+# gated by the same check that gates a dev -> main promotion.
+#
+# Job ids double as the required status-check contexts named in the branch
+# ruleset — rename one and that required check hangs forever. This repo has no
+# application code, so the only context is `config`.
+on:
+  pull_request:
+    branches: ["**"]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate fleet config
+        run: node scripts/validate-config.mjs

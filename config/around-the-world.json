@@ -1,0 +1,6 @@
+{
+  "appName": "around-the-world",
+  "repoURL": "https://github.com/jemmy8oy-northstar/around-the-world.git",
+  "chartPath": "helm",
+  "targetNamespace": "balenthiran"
+}

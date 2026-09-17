@@ -38,8 +38,11 @@ export const TYPES = {
   // Generate a password, CREATE ROLE + CREATE DATABASE ... OWNER, then write the
   // composed Npgsql connection string into this one key.
   'postgres-db': { extra: { database: 'required', role: 'required' } },
-  // Generate N random bytes and write them into this one key. Jwt__Secret,
-  // Admin__Key, kit-auth/password.
+  // Generate `bytes` random bytes and write them into this one key, HEX-ENCODED
+  // — so 32 bytes is the 64-character value `openssl rand -hex 32` produces.
+  // The encoding is fixed rather than declarable because every runbook in this
+  // estate already says `openssl rand -hex N`; a `random` that sometimes meant
+  // base64 would silently change the shape of a value an app already parses.
   random: { extra: { bytes: 'optional' } },
   // Assert the key is already present and fail loudly if it is not. Nobody can
   // generate an OCI Object Storage credential; it can only be checked for.

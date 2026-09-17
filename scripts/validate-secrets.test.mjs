@@ -191,6 +191,48 @@ test('a database name over 63 bytes fails, because Postgres would silently trunc
   assert.match(run({ 'demo.json': decl }).errors.join('\n'), /"database" must be a lowercase Postgres identifier/);
 });
 
+test('two declarations claiming one Postgres role fail', () => {
+  // The silent-and-late one: create-only skips the existing role, so the second
+  // app's freshly generated password is never applied and its connection string
+  // does not authenticate. Nothing about that surfaces at provision time.
+  const a = { ...demo(), app: 'demo', keys: [{ key: 'A', type: 'postgres-db', database: 'one', role: 'shared' }] };
+  const b = { ...demo(), app: 'other', keys: [{ key: 'B', type: 'postgres-db', database: 'two', role: 'shared' }] };
+  const { errors } = run(
+    { 'demo.json': a, 'other.json': b },
+    {
+      'demo.json': { appName: 'demo', repoURL: 'r', chartPath: 'helm', targetNamespace: 'balenthiran' },
+      'other.json': { appName: 'other', repoURL: 'r', chartPath: 'helm', targetNamespace: 'balenthiran' },
+    },
+  );
+  assert.match(errors.join('\n'), /role "shared" is already claimed by/);
+});
+
+test('two declarations claiming one Postgres database fail', () => {
+  const a = { ...demo(), app: 'demo', keys: [{ key: 'A', type: 'postgres-db', database: 'shared', role: 'one' }] };
+  const b = { ...demo(), app: 'other', keys: [{ key: 'B', type: 'postgres-db', database: 'shared', role: 'two' }] };
+  const { errors } = run(
+    { 'demo.json': a, 'other.json': b },
+    {
+      'demo.json': { appName: 'demo', repoURL: 'r', chartPath: 'helm', targetNamespace: 'balenthiran' },
+      'other.json': { appName: 'other', repoURL: 'r', chartPath: 'helm', targetNamespace: 'balenthiran' },
+    },
+  );
+  assert.match(errors.join('\n'), /database "shared" is already claimed by/);
+});
+
+test('an invalid identifier is reported once, not also as a duplicate', () => {
+  // Two bad names would otherwise both land in the map as the same key and the
+  // second would be reported twice, which reads as two separate problems.
+  const decl = demo();
+  decl.keys = [
+    { key: 'A', type: 'postgres-db', database: 'Bad', role: 'ok_one' },
+    { key: 'B', type: 'postgres-db', database: 'Bad', role: 'ok_two' },
+  ];
+  const { errors } = run({ 'demo.json': decl });
+  assert.equal(errors.length, 2);
+  assert.equal(errors.filter((e) => /already claimed/.test(e)).length, 0);
+});
+
 test('random bytes below the floor fails', () => {
   const decl = demo();
   decl.keys = [{ key: 'X', type: 'random', bytes: 4 }];

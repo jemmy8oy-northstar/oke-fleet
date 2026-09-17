@@ -113,6 +113,14 @@ export function validateSecrets(secretsDir = 'secrets', configDir = 'config') {
   // (namespace, secretName, key) -> path. Two declarations writing one key is
   // the collision that matters: both would "succeed" and the last writer wins.
   const seenTarget = new Map();
+  // Postgres identifiers are estate-wide, not per-declaration: one server, one
+  // shared `pg-postgresql`. Two declarations naming one role is the nastiest
+  // shape a create-only provisioner has, because it fails SILENTLY and LATE —
+  // the role already exists, so creation is skipped, so the freshly generated
+  // password is never applied to it, and the second app ships a connection
+  // string that simply does not authenticate. A duplicate database is the same
+  // story one step along: the second app's role owns nothing in it.
+  const seenPg = { database: new Map(), role: new Map() };
 
   const files = readdirSync(secretsDir).filter((f) => f.endsWith('.json')).sort();
 
@@ -232,6 +240,13 @@ export function validateSecrets(secretsDir = 'secrets', configDir = 'config') {
           if (value === undefined) continue;
           if (typeof value !== 'string' || !isPgIdentifier(value)) {
             errors.push(`${at}: "${field}" must be a lowercase Postgres identifier — [a-z_][a-z0-9_]*, max 63 bytes (got ${quote(value)})`);
+            continue;
+          }
+          const claimed = seenPg[field];
+          if (claimed.has(value)) {
+            errors.push(`${at}: ${field} ${quote(value)} is already claimed by ${claimed.get(value)} — create-only means the second one is skipped, not merged, so its generated password would never be applied`);
+          } else {
+            claimed.set(value, path);
           }
         }
       }

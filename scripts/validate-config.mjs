@@ -6,14 +6,23 @@
 // it produces an Application pointing at an empty repoURL, path or namespace,
 // which is a broken deployment rather than a broken pipeline.
 //
+// It also validates secrets/*.json, the provisioner declarations (#7). Those
+// are a separate directory on purpose — the generator must never see them — but
+// they are checked from here rather than from their own CI step, because
+// .github/workflows/ci.yml already runs this file and a workflow edit is
+// James's call under his #83 rule. The name undersells the file; renaming it
+// would itself be a workflow change, so the name stays.
+//
 // Run locally with: node scripts/validate-config.mjs
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { validateSecrets } from './validate-secrets.mjs';
 
 // Keep in step with the `{{...}}` placeholders in apps-root/fleet-generator.yaml.
 const REQUIRED = ['appName', 'repoURL', 'chartPath', 'targetNamespace'];
 
 const dir = process.argv[2] ?? 'config';
+const secretsDir = process.argv[3] ?? 'secrets';
 const errors = [];
 const seen = new Map();
 
@@ -55,10 +64,16 @@ for (const file of files) {
   if (unknown.length) console.log(`note: ${path} has keys the generator ignores: ${unknown.join(', ')}`);
 }
 
+const secrets = validateSecrets(secretsDir, dir);
+for (const n of secrets.notes) console.log(`note: ${n}`);
+errors.push(...secrets.errors);
+
 if (errors.length) {
   console.error(`\n${errors.length} problem(s):`);
   for (const e of errors) console.error(`  ✗ ${e}`);
   process.exit(1);
 }
 
+const declaredKeys = secrets.declarations.reduce((n, d) => n + d.keys.length, 0);
 console.log(`✓ ${files.length} fleet config(s) valid: ${[...seen.keys()].join(', ')}`);
+console.log(`✓ ${secrets.declarations.length} secret declaration(s) valid, ${declaredKeys} key(s)`);

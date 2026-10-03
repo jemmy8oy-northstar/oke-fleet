@@ -1,0 +1,6 @@
+{
+  "appName": "kit",
+  "repoURL": "https://github.com/jemmy8oy-northstar/kit.git",
+  "chartPath": "helm",
+  "targetNamespace": "balenthiran"
+}

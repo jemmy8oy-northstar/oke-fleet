@@ -44,8 +44,18 @@ at `secrets/`.
   secrets and the wrong shape for this. Unresolved on purpose; see the pull request.
 - **`holiday-planning`** and **`silverton-sweepstake`** have no app-level secrets at
   all, only the shared TLS certificate. There is nothing to declare.
-- **`kit`**, because release is parked (kit#48). Its chart is on an unmerged branch
-  and it has no fleet entry.
+- **`kit`**. All three reasons this used to give are now false — the chart is merged on
+  kit's `dev`, release is not parked, and `config/kit.json` registers it as of this
+  commit. The real reason is narrower: Kit's one secret is `kit-auth/password`, a literal
+  James chooses, and every `type` the validator accepts describes a resource the
+  provisioner *creates* (a Postgres database and role). Whether a declaration may ask for
+  a generated literal is unsettled — jemmy8oy-northstar/kit#46 is where the password was
+  decided, and the provisioner's own shape is still open on #7. Until that resolves,
+  `kit-auth` is created by hand:
+
+  ```
+  kubectl create secret generic kit-auth --from-literal=password=<the password> -n balenthiran
+  ```
 
 ## The `postgres-db` names are intent, not a readback
 

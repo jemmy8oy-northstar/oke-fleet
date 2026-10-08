@@ -27,3 +27,8 @@ jobs:
 
       - name: Validate fleet config
         run: node scripts/validate-config.mjs
+
+      # The validators' own tests. validate-config.mjs gates the config; this
+      # gates the rules it gates with, which nothing ran before.
+      - name: Test the validators
+        run: node --test scripts/*.test.mjs

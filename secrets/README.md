@@ -27,6 +27,22 @@ via `scripts/validate-config.mjs`, so a malformed declaration fails the pull req
 | `random` | write `bytes` random bytes, hex-encoded — the same value `openssl rand -hex N` gives. Defaults to 32. |
 | `external` | nobody can generate this one (a third-party API key). Assert it is present and say so loudly if it is not. |
 
+## What acts on these
+
+[secret-provisioner](https://github.com/jemmy8oy-northstar/secret-provisioner) reads
+this directory on **`dev`**, so a declaration is provisioned before its app is released.
+It is internal (no Ingress); reach it with a port-forward:
+
+```sh
+kubectl port-forward -n balenthiran svc/secret-provisioner-secret-provisioner 8080:80
+curl localhost:8080/plan                   # what a reconcile would do; changes nothing
+curl -X POST localhost:8080/reconcile      # does it; takes no body
+```
+
+It is create-only: an existing key is left alone, an existing Secret is only ever patched
+one key at a time, and an existing Postgres role or database **blocks** with the human step
+named, rather than being changed. The planner and its rules live in that repo, not here.
+
 **These are not in `config/`, deliberately.** `apps-root/fleet-generator.yaml` globs
 `config/*.json` as its Argo CD git generator, so every file in there *is* an
 Application; a declaration living there would trip a sync on every edit. James asked

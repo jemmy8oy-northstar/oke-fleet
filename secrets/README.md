@@ -58,7 +58,7 @@ at `secrets/`.
   cannot express one secret owned by the estate rather than by an app — the validator
   rejects two declarations claiming one key, which is the right answer for app
   secrets and the wrong shape for this. Unresolved on purpose; see the pull request.
-- **`holiday-planning`** and **`silverton-sweepstake`** have no app-level secrets at
+- **`holiday-planning`** has no app-level secrets at
   all, only the shared TLS certificate. There is nothing to declare.
 - **`kit`**. All three reasons this used to give are now false — the chart is merged on
   kit's `dev`, release is not parked, and `config/kit.json` registers it as of this

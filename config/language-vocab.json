@@ -1,0 +1,6 @@
+{
+  "appName": "language-vocab",
+  "repoURL": "https://github.com/jemmy8oy-northstar/language-vocab.git",
+  "chartPath": "helm",
+  "targetNamespace": "balenthiran"
+}

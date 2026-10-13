@@ -1,6 +1,0 @@
-{
-  "appName": "silverton-sweepstake",
-  "repoURL": "https://github.com/jemmy8oy/silverton-sweepstake.git",
-  "chartPath": "helm",
-  "targetNamespace": "balenthiran"
-}

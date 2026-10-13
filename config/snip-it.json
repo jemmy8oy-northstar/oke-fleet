@@ -1,0 +1,6 @@
+{
+  "appName": "snip-it",
+  "repoURL": "https://github.com/jemmy8oy-northstar/snip-it.git",
+  "chartPath": "helm",
+  "targetNamespace": "balenthiran"
+}

@@ -19,6 +19,12 @@ via `scripts/validate-config.mjs`, so a malformed declaration fails the pull req
 }
 ```
 
+An optional `"provisioned": "YYYY-MM-DD"` records the date a reconcile last created
+something for this app (secret-provisioner#9). It is **a record for humans, not an input**:
+the provisioner never reads it, and still checks the cluster for itself before acting. A
+stale date can mislabel an app, but it can never cause a create to be skipped or doubled.
+No date means "not recorded", not "not provisioned".
+
 `type` decides how the value comes to exist:
 
 | type | what the provisioner does |

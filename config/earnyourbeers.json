@@ -1,0 +1,6 @@
+{
+  "appName": "earnyourbeers",
+  "repoURL": "https://github.com/jemmy8oy-northstar/earnyourbeers.git",
+  "chartPath": "helm",
+  "targetNamespace": "balenthiran"
+}

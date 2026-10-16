@@ -143,9 +143,20 @@ export function validateSecrets(secretsDir = 'secrets', configDir = 'config') {
       continue;
     }
 
-    const unknownTop = Object.keys(decl).filter((k) => !['app', 'namespace', 'secretName', 'keys'].includes(k));
+    const unknownTop = Object.keys(decl).filter((k) => !['app', 'namespace', 'secretName', 'keys', 'provisioned'].includes(k));
     if (unknownTop.length) {
-      errors.push(`${path}: unknown field(s) ${unknownTop.join(', ')} — allowed: app, namespace, secretName, keys`);
+      errors.push(`${path}: unknown field(s) ${unknownTop.join(', ')} — allowed: app, namespace, secretName, keys, provisioned`);
+    }
+
+    // A record for humans, never an input: the provisioner does not read it and
+    // still asks the cluster before acting (secret-provisioner#9), so a stale
+    // date can mislabel but never skip a create. Only its shape is checked.
+    if ('provisioned' in decl) {
+      const d = decl.provisioned;
+      const real = typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)
+        && !Number.isNaN(Date.parse(`${d}T00:00:00Z`))
+        && new Date(`${d}T00:00:00Z`).toISOString().slice(0, 10) === d;
+      if (!real) errors.push(`${path}: "provisioned" must be a real calendar date, YYYY-MM-DD (got ${quote(d)})`);
     }
 
     const { app, namespace, secretName } = decl;

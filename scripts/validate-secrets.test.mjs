@@ -126,6 +126,18 @@ test('an unknown top-level field fails rather than being ignored', () => {
   assert.match(errors.join('\n'), /unknown field\(s\) databse/);
 });
 
+test('a provisioned date is accepted (secret-provisioner#9)', () => {
+  const { errors } = run({ 'demo.json': { ...demo(), provisioned: '2026-10-15' } });
+  assert.deepEqual(errors, []);
+});
+
+test('a provisioned value that is not a real date fails', () => {
+  for (const bad of ['2026-02-30', '15/10/2026', '2026-10-15T00:00:00Z', 20261015, true]) {
+    const { errors } = run({ 'demo.json': { ...demo(), provisioned: bad } });
+    assert.match(errors.join('\n'), /"provisioned" must be a real calendar date/, `accepted ${JSON.stringify(bad)}`);
+  }
+});
+
 test('a non-lowercase namespace fails', () => {
   const { errors } = run({ 'demo.json': { ...demo(), namespace: 'Balenthiran' } });
   assert.match(errors.join('\n'), /"namespace" must be a lowercase DNS label/);

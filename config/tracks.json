@@ -1,0 +1,6 @@
+{
+  "appName": "tracks",
+  "repoURL": "https://github.com/jemmy8oy-northstar/tracks.git",
+  "chartPath": "helm",
+  "targetNamespace": "balenthiran"
+}

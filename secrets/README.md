@@ -37,7 +37,9 @@ No date means "not recorded", not "not provisioned".
 
 [secret-provisioner](https://github.com/jemmy8oy-northstar/secret-provisioner) reads
 this directory on **`dev`**, so a declaration is provisioned before its app is released.
-It is internal (no Ingress); reach it with a port-forward:
+It is internal (no Ingress). From inside the cluster, call
+`http://secret-provisioner-secret-provisioner.balenthiran.svc.cluster.local` directly.
+From a laptop, use a port-forward:
 
 ```sh
 kubectl port-forward -n balenthiran svc/secret-provisioner-secret-provisioner 8080:80
@@ -45,9 +47,12 @@ curl localhost:8080/plan                   # what a reconcile would do; changes 
 curl -X POST localhost:8080/reconcile      # does it; takes no body
 ```
 
-It is create-only: an existing key is left alone, an existing Secret is only ever patched
-one key at a time, and an existing Postgres role or database **blocks** with the human step
-named, rather than being changed. The planner and its rules live in that repo, not here.
+It is create-only: **a Secret that already exists is skipped entirely.** The pod may only
+`create` Secrets, so it cannot read one or patch a missing key into it. Create a Secret by
+hand and any key you left out stays missing until you add it yourself, or delete the
+Secret and let a reconcile create it. An existing Postgres role or database **blocks** with
+the human step named, rather than being changed. The planner and its rules live in that
+repo, not here.
 
 **These are not in `config/`, deliberately.** `apps-root/fleet-generator.yaml` globs
 `config/*.json` as its Argo CD git generator, so every file in there *is* an

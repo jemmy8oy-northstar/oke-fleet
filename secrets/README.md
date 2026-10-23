@@ -71,9 +71,9 @@ at `secrets/`.
   secrets and the wrong shape for this. Unresolved on purpose; see the pull request.
 - **`holiday-planning`** has no app-level secrets at
   all, only the shared TLS certificate. There is nothing to declare.
-- **`kit`**. All three reasons this used to give are now false — the chart is merged on
-  kit's `dev`, release is not parked, and `config/kit.json` registers it as of this
-  commit. The real reason is narrower: Kit's one secret is `kit-auth/password`, a literal
+- **`kit-auth`** (Kit's password). `secrets/kit.json` declares only Kit's database
+  (`kit-database`, for the early-access accounts of jemmy8oy-northstar/kit#423).
+  The password is left out because it is `kit-auth/password`, a literal
   James chooses, and every `type` the validator accepts describes a resource the
   provisioner *creates* (a Postgres database and role). Whether a declaration may ask for
   a generated literal is unsettled — jemmy8oy-northstar/kit#46 is where the password was
